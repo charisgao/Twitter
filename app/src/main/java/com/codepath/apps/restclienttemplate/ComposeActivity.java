@@ -2,6 +2,7 @@ package com.codepath.apps.restclienttemplate;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,18 +14,21 @@ import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.asynchttpclient.RequestParams;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 import com.codepath.oauth.OAuthBaseClient;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.parceler.Parcels;
 
 import okhttp3.Headers;
 
 public class ComposeActivity extends AppCompatActivity {
 
-    public static final int MAX_TWEET_LENGTH = 140;
+    public static final int MAX_TWEET_LENGTH = 280;
 
     EditText etCompose;
     Button btnTweet;
+    TextInputLayout tilCompose;
 
     TwitterClient client;
 
@@ -36,6 +40,10 @@ public class ComposeActivity extends AppCompatActivity {
         client = TwitterApp.getRestClient(this);
 
         etCompose = findViewById(R.id.etCompose);
+
+        tilCompose = findViewById(R.id.tilCompose);
+        tilCompose.setCounterMaxLength(MAX_TWEET_LENGTH);
+
         btnTweet = findViewById(R.id.btnTweet);
 
         // Set click listener on button
@@ -58,11 +66,16 @@ public class ComposeActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(int statusCode, Headers headers, JSON json) {
                             Log.i("ComposeActivity", "onSuccess" + json.toString());
+                            Tweet tweet = new Tweet();
                             try {
-                                Tweet.fromJson(json.jsonObject);
+                                tweet = Tweet.fromJson(json.jsonObject);
                             } catch (JSONException e) {
                                 Log.e("ComposeActivity", "Json exception", e);
                             }
+                            Intent intent = new Intent();
+                            intent.putExtra("tweet", Parcels.wrap(tweet));
+                            setResult(RESULT_OK, intent);
+                            finish();
                         }
 
                         @Override
