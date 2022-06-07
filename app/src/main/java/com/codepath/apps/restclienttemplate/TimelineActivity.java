@@ -105,7 +105,7 @@ public class TimelineActivity extends AppCompatActivity {
 
     void onLogoutButton() {
         // Forget who's logged in
-        TwitterApp.getRestClient(this).clearAccessToken();
+        client.clearAccessToken();
 
         // Navigate backwards to Login screen
         Intent i = new Intent(this, LoginActivity.class);
