@@ -65,12 +65,6 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         notifyDataSetChanged();
     }
 
-    // Add a list of tweets
-    public void addAll(List<Tweet> list) {
-        tweets.addAll(list);
-        notifyDataSetChanged();
-    }
-
     public String getRelativeTimeAgo(String rawJsonDate) {
         String twitterFormat = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
         SimpleDateFormat sf = new SimpleDateFormat(twitterFormat, Locale.ENGLISH);
@@ -82,17 +76,11 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
 
             final long diff = now - time;
             if (diff < MINUTE_MILLIS) {
-                return "just now";
-            } else if (diff < 2 * MINUTE_MILLIS) {
-                return "a minute ago";
+                return "· " + diff / SECOND_MILLIS + "s";
             } else if (diff < 60 * MINUTE_MILLIS) {
                 return "· " + diff / MINUTE_MILLIS + "m";
-            } else if (diff < 90 * MINUTE_MILLIS) {
-                return "an hour ago";
             } else if (diff < 24 * HOUR_MILLIS) {
                 return "· " + diff / HOUR_MILLIS + "h";
-            } else if (diff < 48 * HOUR_MILLIS) {
-                return "yesterday";
             } else {
                 return "· " + diff / DAY_MILLIS + "d";
             }

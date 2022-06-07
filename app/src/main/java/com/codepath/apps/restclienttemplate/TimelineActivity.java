@@ -31,7 +31,7 @@ import okhttp3.Headers;
 public class TimelineActivity extends AppCompatActivity {
 
     public static final String TAG = "TimelineActivity";
-    public static final int REQUEST_CODE = 1;
+    public static final int REQUEST_CODE = 20;
 
     private SwipeRefreshLayout swipeContainer;
 
@@ -40,6 +40,8 @@ public class TimelineActivity extends AppCompatActivity {
     Button btnLogout;
     List<Tweet> tweets;
     TweetsAdapter adapter;
+
+    MenuItem miActionProgressItem;
 
     @SuppressLint("ResourceAsColor")
     @Override
@@ -52,7 +54,7 @@ public class TimelineActivity extends AppCompatActivity {
         // Find the RecyclerView, log out button, and swipe container
         rvTweets = findViewById(R.id.rvTweets);
         btnLogout = findViewById(R.id.btnLogout);
-        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        swipeContainer = findViewById(R.id.swipeContainer);
 
         // Initialize the list of tweets and adapter
         tweets = new ArrayList<>();
@@ -78,7 +80,7 @@ public class TimelineActivity extends AppCompatActivity {
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fetchTimelineAsync(0);
+                populateHomeTimeline();
             }
         });
 
@@ -87,31 +89,6 @@ public class TimelineActivity extends AppCompatActivity {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-    }
-
-    public void fetchTimelineAsync(int page) {
-        // Send the network request to fetch the updated data
-        client.getHomeTimeline(new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Headers headers, JSON json) {
-                // CLear out old items and add new items to adapter
-                adapter.clear();
-                try {
-                    JSONArray jsonArray = json.jsonArray;
-                    adapter.addAll(Tweet.fromJsonArray(jsonArray));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                // setRefreshing false to signal refresh has finished
-                swipeContainer.setRefreshing(false);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                Log.e(TAG, "Fetch timeline error: " + response, throwable);
-            }
-        });
     }
 
     @Override
@@ -136,7 +113,10 @@ public class TimelineActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (REQUEST_CODE == requestCode && resultCode == RESULT_OK) {
+            // Get data from the intent (tweet)
             Tweet tweet = Parcels.unwrap(data.getParcelableExtra("tweet"));
+
+            // Update the RecyclerView with the tweet
             tweets.add(0, tweet);
             adapter.notifyItemInserted(0);
             rvTweets.smoothScrollToPosition(0);
@@ -144,14 +124,27 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     private void populateHomeTimeline() {
+        // Send the network request to fetch the updated data
         client.getHomeTimeline(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
                 Log.i(TAG, "onSuccess" + json.toString());
+
+                // Show progress bar as an operation is in progress
+                miActionProgressItem.setVisible(true);
+
                 JSONArray jsonArray = json.jsonArray;
                 try {
+                    // Clear out old items and add new items to adapter
+                    adapter.clear();
                     tweets.addAll(Tweet.fromJsonArray(jsonArray));
                     adapter.notifyDataSetChanged();
+
+                    // setRefreshing false to signal refresh has finished
+                    swipeContainer.setRefreshing(false);
+
+                    // Hide progress bar as operation is finished
+                    miActionProgressItem.setVisible(false);
                 } catch (JSONException e) {
                     Log.e(TAG, "Json exception", e);
                 }
@@ -164,7 +157,7 @@ public class TimelineActivity extends AppCompatActivity {
         });
     }
 
-    void onLogoutButton() {
+    public void onLogoutButton() {
         // Forget who's logged in
         client.clearAccessToken();
 
@@ -173,5 +166,12 @@ public class TimelineActivity extends AppCompatActivity {
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // Makes sure the Back button won't work
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // Same as above
         startActivity(i);
+    }
+
+    // Prepare options menu, connects progress bar with logic
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        miActionProgressItem = menu.findItem(R.id.miActionProgress);
+        return super.onPrepareOptionsMenu(menu);
     }
 }
