@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.codepath.apps.restclienttemplate.models.Tweet;
@@ -28,7 +29,7 @@ import java.util.List;
 
 import okhttp3.Headers;
 
-public class TimelineActivity extends AppCompatActivity {
+public class TimelineActivity extends AppCompatActivity implements TweetsAdapter.TweetListener {
 
     public static final String TAG = "TimelineActivity";
     public static final int REQUEST_CODE = 20;
@@ -58,7 +59,7 @@ public class TimelineActivity extends AppCompatActivity {
 
         // Initialize the list of tweets and adapter
         tweets = new ArrayList<>();
-        adapter = new TweetsAdapter(this, tweets);
+        adapter = new TweetsAdapter(this, tweets, this);
 
         // RecyclerView setup: layout manager and the adapter
         rvTweets.setLayoutManager(new LinearLayoutManager(this));
@@ -168,10 +169,96 @@ public class TimelineActivity extends AppCompatActivity {
         startActivity(i);
     }
 
-    // Prepare options menu, connects progress bar with logic
+    // Prepare options menu for progress bar
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         miActionProgressItem = menu.findItem(R.id.miActionProgress);
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public void retweet(ImageButton ibRetweet, int position) {
+        Tweet tweet = tweets.get(position);
+
+        // if tweet is not retweeted yet
+        if (!tweet.retweeted) {
+            ibRetweet.setImageResource(R.drawable.ic_vector_retweet);
+            client.retweet(tweet.id, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Headers headers, JSON json) {
+                    Log.i("Retweet", "onSuccess" + json.toString());
+                    Tweet newTweet = new Tweet();
+                    try {
+                        newTweet = Tweet.fromJson(json.jsonObject);
+                        newTweet.favorited = false;
+                        newTweet.retweeted = false;
+                    } catch (JSONException e) {
+                        Log.e("RetweetTimelineActivity", "Json exception", e);
+                    }
+                    tweets.add(0, newTweet);
+                    adapter.notifyItemInserted(0);
+                    rvTweets.smoothScrollToPosition(0);
+                }
+
+                @Override
+                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                    Log.e("Retweet", "onFailure" + response, throwable);
+                    Toast.makeText(TimelineActivity.this, "Retweet unsuccessful", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            ibRetweet.setImageResource(R.drawable.ic_vector_retweet_stroke);
+            client.unRetweet(tweet.id, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Headers headers, JSON json) {
+                    Log.i("UnRetweet", "onSuccess" + json.toString());
+                    rvTweets.smoothScrollToPosition(0);
+                }
+
+                @Override
+                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                    Log.e("UnRetweet", "onFailure" + response, throwable);
+                    Toast.makeText(TimelineActivity.this, "Undo retweet unsuccessful", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+        tweet.retweeted = !tweet.retweeted;
+    }
+
+    @Override
+    public void favorite(ImageButton ibFavorite, int position) {
+        Tweet tweet = tweets.get(position);
+
+        // if tweet is not favorited yet
+        if (!tweet.favorited) {
+            ibFavorite.setImageResource(R.drawable.ic_vector_heart);
+            client.favorite(tweet.id, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Headers headers, JSON json) {
+                    Log.i("Favorite", "onSuccess" + json.toString());
+                }
+
+                @Override
+                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                    Log.e("Favorite", "onFailure" + response, throwable);
+                    Toast.makeText(TimelineActivity.this, "Favorite unsuccessful", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            ibFavorite.setImageResource(R.drawable.ic_vector_heart_stroke);
+            client.unFavorite(tweet.id, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Headers headers, JSON json) {
+                    Log.i("UnFavorite", "onSuccess" + json.toString());
+                }
+
+                @Override
+                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                    Log.e("UnFavorite", "onFailure" + response, throwable);
+                    Toast.makeText(TimelineActivity.this, "Unfavorite unsuccessful", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+        tweet.favorited = !tweet.favorited;
     }
 }

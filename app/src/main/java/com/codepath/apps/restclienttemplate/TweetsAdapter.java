@@ -1,10 +1,12 @@
 package com.codepath.apps.restclienttemplate;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,6 +23,11 @@ import java.util.Locale;
 
 public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder>{
 
+    public interface TweetListener {
+        void retweet(ImageButton ibRetweet, int position);
+        void favorite(ImageButton ibFavorite, int position);
+    }
+
     private static final int SECOND_MILLIS = 1000;  // 1 second = 1000 milliseconds
     private static final int MINUTE_MILLIS = 60 * SECOND_MILLIS;    // 1 minute = 60 seconds
     private static final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
@@ -29,11 +36,13 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
 
     Context context;
     List<Tweet> tweets;
+    TweetListener tweetListener;
 
     // Pass in the context and list of tweets
-    public TweetsAdapter(Context context, List<Tweet> tweets) {
+    public TweetsAdapter(Context context, List<Tweet> tweets, TweetListener listener) {
         this.context = context;
         this.tweets = tweets;
+        this.tweetListener = listener;
     }
 
     // For each row, inflate the layout
@@ -101,6 +110,9 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         TextView tvBody;
         TextView tvTimestamp;
         ImageView ivImage;
+        ImageButton ibTweetReply;
+        ImageButton ibRetweet;
+        ImageButton ibHeart;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -111,6 +123,9 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             tvBody = itemView.findViewById(R.id.tvBody);
             tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
             ivImage = itemView.findViewById(R.id.ivImage);
+            ibTweetReply = itemView.findViewById(R.id.ibTweetReply);
+            ibRetweet = itemView.findViewById(R.id.ibRetweet);
+            ibHeart = itemView.findViewById(R.id.ibHeart);
         }
 
         public void bind(Tweet tweet) {
@@ -127,6 +142,43 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             } else {
                 ivImage.setVisibility(View.GONE);
             }
+
+            ibTweetReply.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, ComposeActivity.class);
+                    intent.putExtra("isComment", true);
+                    intent.putExtra("screenName", tweet.user.screenName);
+                    intent.putExtra("replyId", tweet.id);
+                    context.startActivity(intent);
+                }
+            });
+
+            if (tweet.retweeted) {
+                ibRetweet.setImageResource(R.drawable.ic_vector_retweet);
+            } else {
+                ibRetweet.setImageResource(R.drawable.ic_vector_retweet_stroke);
+            }
+
+            if (tweet.favorited){
+                ibHeart.setImageResource(R.drawable.ic_vector_heart);
+            } else {
+                ibHeart.setImageResource(R.drawable.ic_vector_heart_stroke);
+            }
+
+            ibRetweet.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    tweetListener.retweet(ibRetweet, getAdapterPosition());
+                }
+            });
+
+            ibHeart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    tweetListener.favorite(ibHeart, getAdapterPosition());
+                }
+            });
         }
     }
 
