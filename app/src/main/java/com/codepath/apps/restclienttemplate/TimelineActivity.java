@@ -36,6 +36,7 @@ public class TimelineActivity extends AppCompatActivity implements TweetsAdapter
     public static final int REQUEST_CODE = 20;
 
     private SwipeRefreshLayout swipeContainer;
+    private EndlessRecyclerViewScrollListener scrollListener;
 
     TwitterClient client;
     RecyclerView rvTweets;
@@ -63,7 +64,8 @@ public class TimelineActivity extends AppCompatActivity implements TweetsAdapter
         adapter = new TweetsAdapter(this, tweets, this);
 
         // RecyclerView setup: layout manager and the adapter
-        rvTweets.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        rvTweets.setLayoutManager(linearLayoutManager);
         rvTweets.setAdapter(adapter);
 
         populateHomeTimeline();
@@ -91,6 +93,39 @@ public class TimelineActivity extends AppCompatActivity implements TweetsAdapter
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
+
+        // Endless scroll listener
+        scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                // Triggered only when new data needs to be appended to the list
+                String lastTweetId = tweets.get(tweets.size() - 1).id;
+                client.getHomeTimelineEndless(lastTweetId, new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Headers headers, JSON json) {
+                        // Show progress bar as an operation is in progress
+                        miActionProgressItem.setVisible(true);
+
+                        JSONArray jsonArray = json.jsonArray;
+                        try {
+                            tweets.addAll(Tweet.fromJsonArray(jsonArray));
+                            adapter.notifyItemRangeInserted(tweets.size() - 1, 25);
+
+                            // Hide progress bar as operation is finished
+                            miActionProgressItem.setVisible(false);
+                        } catch (JSONException e) {
+                            Log.e(TAG, "Json exception", e);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                        Log.e("EndlessScroll", "onFailure" + response);
+                    }
+                });
+            }
+        };
+        rvTweets.addOnScrollListener(scrollListener);
     }
 
     @Override
@@ -141,6 +176,7 @@ public class TimelineActivity extends AppCompatActivity implements TweetsAdapter
                     adapter.clear();
                     tweets.addAll(Tweet.fromJsonArray(jsonArray));
                     adapter.notifyDataSetChanged();
+                    scrollListener.resetState();
 
                     // setRefreshing false to signal refresh has finished
                     swipeContainer.setRefreshing(false);
