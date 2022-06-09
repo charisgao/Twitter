@@ -9,6 +9,8 @@
 
     <ImageView
         android:id="@+id/ivProfileImage"
+        android:background="@drawable/circle"
+        android:outlineProvider="background"
         android:layout_width="50dp"
         android:layout_height="50dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,6 +36,7 @@
         android:layout_marginTop="2dp"
         android:autoLink="all"
         android:linksClickable="true"
+        android:textColor="#000000"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/ivProfileImage"
         app:layout_constraintTop_toBottomOf="@+id/tvScreenName"
@@ -54,6 +57,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
+        android:textColor="#000000"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/ivProfileImage"
         app:layout_constraintTop_toTopOf="parent"

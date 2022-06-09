@@ -24,6 +24,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.parceler.Parcels;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 

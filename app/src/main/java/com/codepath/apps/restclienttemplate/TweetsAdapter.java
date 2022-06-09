@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 
+import org.parceler.Parcels;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -101,6 +103,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         return "";
     }
 
+
     // Define a viewholder, itemView = one row/tweet in RecyclerView
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -126,6 +129,21 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             ibTweetReply = itemView.findViewById(R.id.ibTweetReply);
             ibRetweet = itemView.findViewById(R.id.ibRetweet);
             ibHeart = itemView.findViewById(R.id.ibHeart);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                // When the user clicks on a row, show TweetDetailsActivity for the selected tweet
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        Tweet tweet = tweets.get(position);
+                        Intent intent = new Intent(context, TweetDetailsActivity.class);
+                        intent.putExtra(Tweet.class.getSimpleName(), Parcels.wrap(tweet));
+                        intent.putExtra("position", position);
+                        context.startActivity(intent);
+                    }
+                }
+            });
         }
 
         public void bind(Tweet tweet) {
@@ -135,6 +153,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             tvTimestamp.setText(getRelativeTimeAgo(tweet.createdAt));
 
             Glide.with(context).load(tweet.user.profileImageUrl).into(ivProfileImage);
+            ivProfileImage.setClipToOutline(true);
 
             if (tweet.mediaUrl != null) {
                 ivImage.setVisibility(View.VISIBLE);
@@ -180,6 +199,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                 }
             });
         }
+
     }
 
 }

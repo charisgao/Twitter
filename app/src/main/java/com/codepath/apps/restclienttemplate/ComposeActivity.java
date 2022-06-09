@@ -3,14 +3,18 @@ package com.codepath.apps.restclienttemplate;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Selection;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -63,7 +67,9 @@ public class ComposeActivity extends AppCompatActivity {
             replyId = getIntent().getStringExtra("replyId");
             Log.i("reply", replyId);
 
-            etCompose.setText(replyName + " ");
+            String at = replyName + " ";
+            etCompose.setText(at);
+
             etCompose.requestFocus();
         }
 
