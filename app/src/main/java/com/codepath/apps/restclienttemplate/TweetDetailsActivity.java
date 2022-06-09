@@ -220,7 +220,7 @@ public class TweetDetailsActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.miHome) {
-            Intent intent = new Intent(this, TimelineActivity.class);
+            Intent intent = new Intent(TweetDetailsActivity.this, TimelineActivity.class);
             startActivity(intent);
         }
         return true;

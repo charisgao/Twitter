@@ -58,6 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
         android:textColor="#000000"
+        android:textSize="15sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/ivProfileImage"
         app:layout_constraintTop_toTopOf="parent"
