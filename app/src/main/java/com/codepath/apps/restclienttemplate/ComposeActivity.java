@@ -42,8 +42,8 @@ public class ComposeActivity extends AppCompatActivity {
     TextInputLayout tilCompose;
 
     String tweetContent;
-    String replyName;
-    String replyId;
+    String replyName = null;
+    String replyId = "";
 
     TwitterClient client;
 
@@ -78,7 +78,9 @@ public class ComposeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 tweetContent = etCompose.getText().toString();
-                tweetContent = tweetContent.substring(replyName.length());
+                if (replyName != null) {
+                    tweetContent = tweetContent.substring(replyName.length());
+                }
 
                 if (tweetContent.isEmpty()) {
                     Toast.makeText(ComposeActivity.this, "Sorry, your tweet cannot be empty", Toast.LENGTH_LONG).show();
