@@ -60,6 +60,7 @@ public class TweetDetailsActivity extends AppCompatActivity {
         tvDetailTimestamp = findViewById(R.id.tvDetailTimestamp);
 
         Toolbar toolbarDetail = (Toolbar) findViewById(R.id.toolbarDetail);
+        toolbarDetail.setTitleTextColor(getResources().getColor(R.color.white));
         setSupportActionBar(toolbarDetail);
 
         tweet = (Tweet) Parcels.unwrap(getIntent().getParcelableExtra(Tweet.class.getSimpleName()));

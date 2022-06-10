@@ -74,6 +74,7 @@ public class TimelineActivity extends AppCompatActivity implements TweetsAdapter
         rvTweets.addItemDecoration(dividerItemDecoration);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitleTextColor(getResources().getColor(R.color.white));
         setSupportActionBar(toolbar);
 
         populateHomeTimeline();

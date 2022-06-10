@@ -54,6 +54,9 @@ GIF created with [Kap](https://getkap.co/).
 
 Describe any challenges encountered while building the app.
 
+- I faced some challenges with the reply, retweet, and favorite functionality. Specifically with the reply feature, I had difficulty with having the @ load automatically in the compose activity page. However, I was able to do this by passing extras with the intent and adding parameters to the POST request.
+- I also faced some challenges with applying scrolling effects to the toolbar since I got confused with the action bar in the app with adding my own new action bar and toolbar. After running the app, I had two action bars. I realized later on that I had to set the original action bar to no action bar and ensure that the menu items and styling applied to the new toolbar.
+
 ## Open-source libraries used
 
 - [Android Async HTTP](https://github.com/loopj/android-async-http) - Simple asynchronous HTTP requests with JSON parsing
