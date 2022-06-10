@@ -1,6 +1,7 @@
 package com.codepath.apps.restclienttemplate;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -57,6 +58,9 @@ public class TweetDetailsActivity extends AppCompatActivity {
         ibRetweet = findViewById(R.id.ibRetweet);
         ibHeart = findViewById(R.id.ibHeart);
         tvDetailTimestamp = findViewById(R.id.tvDetailTimestamp);
+
+        Toolbar toolbarDetail = (Toolbar) findViewById(R.id.toolbarDetail);
+        setSupportActionBar(toolbarDetail);
 
         tweet = (Tweet) Parcels.unwrap(getIntent().getParcelableExtra(Tweet.class.getSimpleName()));
         position = getIntent().getIntExtra("position", 0);

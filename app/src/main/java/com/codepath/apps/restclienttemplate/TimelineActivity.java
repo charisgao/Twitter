@@ -2,6 +2,7 @@ package com.codepath.apps.restclienttemplate;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -69,9 +70,11 @@ public class TimelineActivity extends AppCompatActivity implements TweetsAdapter
         rvTweets.setLayoutManager(linearLayoutManager);
         rvTweets.setAdapter(adapter);
 
-
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, linearLayoutManager.getOrientation());
         rvTweets.addItemDecoration(dividerItemDecoration);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         populateHomeTimeline();
 
